@@ -53,7 +53,34 @@ fi
 	printf "$method / HTTP/1.1\nHost: $1\n\n" | ncat --ssl -w 5 $1 443 | grep "HTTP/1.1"
 	done
 
-		printf "\n - SSL\n\n"; sslscan $1 | grep Accepted
+	printf "\n - SSL\n\n"; sslscan $1 | grep Accepted
+
+	printf "\n - POODLE (SSLv3)"
+
+	host=${1:-$1}
+	port=${2:-443}
+	timeout_bin=`which timeout 2>/dev/null`
+	
+	printf "\n\n$host:$port - "
+	
+	out="`echo 'Q' | ${timeout_bin:+$timeout_bin 5} openssl s_client -ssl3 -connect "${host}:${port}" 2>/dev/null`"
+	
+	if [ $? -eq 124 ]; then
+		echo "Timeout connecting to host!"
+	fi
+	
+	if ! echo "$out" | grep -q 'Cipher is' ; then
+		echo 'Not vulnerable.  Failed to establish SSL connection.'
+	fi
+	
+	proto=`echo "$out" | grep '^ *Protocol *:' | awk '{ print $3 }'`
+	cipher=`echo "$out" | grep '^ *Cipher *:' | awk '{ print $3 }'`
+	
+	if [ "$cipher" = '0000'  -o  "$cipher" = '(NONE)' ]; then
+		echo 'Not vulnerable.  Failed to establish SSLv3 connection.'
+	else
+		echo "Vulnerable!  SSLv3 connection established using $proto/$cipher"
+	fi
 
 	else 
 	printf "\n\e[1m[-] HTTPS (443)\e[0m\n\n"
@@ -62,7 +89,7 @@ fi
 #Scans
 
 	printf "\n\e[1m[+] Nmap\e[0m\n\n"
-	sudo nmap -n -O -sS -T4 -sV -f --script "(default or auth or vuln or instrusive) and not http-csrf and not http-dombased-xss and not http-stored-xss" $1 
+	sudo nmap -n -O -sS -T4 -sV -f --script "(default or auth or vuln or intrusive) and not http-csrf and not http-dombased-xss and not http-stored-xss" $1 
 
 	printf "\n\e[1m[+] DNS\e[0m\n\n"
 	printf " - fierce\n\n"
