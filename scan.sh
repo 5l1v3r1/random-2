@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Perform information gathering on url (kali linux by default)
+# ./scan <url>
+
 if [ "$#" -eq 1 ]; then
 
 if [[ "$1" =~ ^www.* ]]; then
